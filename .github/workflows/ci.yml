@@ -1,0 +1,23 @@
+name: Linux correctness
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [release, asan, tsan]
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build g++ python3
+      # Support both a standalone checkout and this parent projects repository.
+      - name: Configure, build, test
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+          TSAN_OPTIONS: halt_on_error=1
+        run: |
+          if [ -d MarketReplay ]; then cd MarketReplay; fi
+          cmake --preset ${{ matrix.preset }}
+          cmake --build --preset ${{ matrix.preset }} --parallel 2
+          ctest --preset ${{ matrix.preset }}

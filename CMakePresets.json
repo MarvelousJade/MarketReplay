@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {"name": "release", "generator": "Ninja", "binaryDir": "${sourceDir}/build/release", "cacheVariables": {"CMAKE_BUILD_TYPE": "Release"}},
+    {"name": "asan", "inherits": "release", "binaryDir": "${sourceDir}/build/asan", "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug", "SANITIZER": "address"}},
+    {"name": "tsan", "inherits": "release", "binaryDir": "${sourceDir}/build/tsan", "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug", "SANITIZER": "thread"}},
+    {"name": "profile", "inherits": "release", "binaryDir": "${sourceDir}/build/profile", "cacheVariables": {"CMAKE_BUILD_TYPE": "RelWithDebInfo", "CMAKE_CXX_FLAGS": "-fno-omit-frame-pointer"}}
+  ],
+  "buildPresets": [
+    {"name": "release", "configurePreset": "release"},
+    {"name": "asan", "configurePreset": "asan"},
+    {"name": "tsan", "configurePreset": "tsan"},
+    {"name": "profile", "configurePreset": "profile"}
+  ],
+  "testPresets": [
+    {"name": "release", "configurePreset": "release", "output": {"outputOnFailure": true}},
+    {"name": "asan", "configurePreset": "asan", "output": {"outputOnFailure": true}},
+    {"name": "tsan", "configurePreset": "tsan", "output": {"outputOnFailure": true}}
+  ]
+}
