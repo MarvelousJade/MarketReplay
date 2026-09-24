@@ -1,0 +1,6 @@
+/build/
+/bench-results/
+__pycache__/
+*.pyc
+perf.data*
+*.svg
