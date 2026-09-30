@@ -32,7 +32,7 @@ public:
     std::optional<T> pop() {
         std::unique_lock lock(mutex_);
         readable_.wait(lock, [&] { return closed_ || !items_.empty(); });
-        if (closed_ || items_.empty()) return std::nullopt;
+        if (items_.empty()) return std::nullopt;
         T item = std::move(items_.front());
         items_.pop_front();
         lock.unlock();
