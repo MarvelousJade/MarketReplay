@@ -30,7 +30,7 @@ void Book::apply(const Event& e) {
         orders_.emplace(e.id, Order{e.side, e.price, e.quantity});
         levels[e.price] = total + e.quantity;
     } else {
-        if (it == orders_.end() || (e.operation == 'E' && e.quantity > it->second.quantity)) {
+        if (it == orders_.end() || (e.operation == 'E' && e.quantity >= it->second.quantity)) {
             ++counters_.rejected; return;
         }
         auto& order = it->second;
