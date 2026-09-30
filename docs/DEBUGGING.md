@@ -1,6 +1,8 @@
 # Debugging practice (learner instructions)
 
-Two **invented practice scenarios**, not production incidents. The working version stays on `shaoyu/rework`; isolated faulty checkpoints will be preserved on `shaoyu/learning`. Neither exercise depends on fixing the other.
+Two **invented practice scenarios**, not production incidents. Both were subsequently investigated and fixed autonomously by the coding agent at the user's request. Local `main` contains the rework and both focused fixes; `shaoyu/learning` is also corrected. The original faulty tags remain preserved for independent practice. No personal user investigation is claimed.
+
+Completed investigations (spoilers): [exercise 1](EXERCISE-1.md), [exercise 2](EXERCISE-2.md). Integration and final checks: [INTEGRATION.md](INTEGRATION.md). Neither exercise depends on fixing the other.
 
 Start with a clean working tree. Create your own branch from the chosen checkpoint, configure/build release after switching, and investigate before opening `practice/mentor/` (solutions and regression checks). Rebuild when returning to the working branch: ignored build artifacts are shared across Git branches.
 
@@ -27,7 +29,7 @@ Compare orders, levels, and counters. Reproduce with four workers. Write down co
 
 **Hypothetical consequence:** an offline batch could report successful completion with incomplete state.
 
-Checkpoint: `shaoyu/practice-2` tag (also the tip of `shaoyu/learning`).
+Checkpoint: `shaoyu/practice-2` tag (historical faulty checkpoint, no longer the tip of `shaoyu/learning`).
 
 ```sh
 git switch -c my/exercise-2 shaoyu/practice-2
@@ -47,4 +49,4 @@ The probe accepts two items, then consumes them during orderly shutdown. Expecte
 4. Regression failure before / success after, plus affected full checks.
 5. Remaining uncertainty (especially unrun sanitizer checks).
 
-Ask for “exercise N hint 1” when stuck; progressively stronger hints and solutions are separate. After your own fix, share the diff and notes so we can verify it and build an honest interview story. Do not represent prepared exercises as real incidents.
+Ask for “exercise N hint 1” when stuck; progressively stronger hints and solutions are separate. The agent's completed explanations are available separately; after your own independent practice, share the diff and notes so we can verify it and build a story based on your actual work. Do not represent prepared exercises as real incidents.

@@ -46,8 +46,8 @@ diff -u expected.csv actual.csv
 python3 python/benchmark.py build/release/replay --events 100000 --repeats 3
 ```
 
-Tests cover book updates, queue shutdown/backpressure, exact record-size boundaries, Python comparisons across worker counts, and the CLI workflow/error/metrics contract. Rework release and ASan/UBSan checks passed 3/3 locally. TSan built but all three checks failed during runtime startup on this WSL host; race validation remains blocked. See the [rework evidence](docs/REWORK.md).
+Tests cover book updates, execution boundaries, queue shutdown/backpressure and FIFO drain, exact record-size boundaries, Python comparisons across worker counts, and the CLI workflow/error/metrics contract. Integrated `main` Release and ASan/UBSan checks passed 5/5 locally. TSan built; unit passed once, but four other checks failed during runtime startup on this WSL host. Full race validation remains blocked. See the [integration evidence](docs/INTEGRATION.md) and [historical rework evidence](docs/REWORK.md).
 
-Work on `shaoyu/rework` follows [AGENTS.md](AGENTS.md); existing Git history is preserved. Learning defects live only on `shaoyu/learning` and its practice tags.
+Local `main` now integrates `shaoyu/rework` and both corrected exercises without squashing. Individual fix commits remain in its ancestry; original faulty practice tags are preserved. See [integration evidence](docs/INTEGRATION.md) and the agent-only investigation explanations in the [interview guide](docs/INTERVIEW.md). No personal user investigation is claimed.
 
 **Limits:** in-memory state, no checkpoint or network feed; queues are bounded but order storage is not. Restart by replaying the original file. More threads are not automatically faster.
