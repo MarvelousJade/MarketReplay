@@ -17,6 +17,6 @@ Interview material must describe the actual implementation, not invent authorshi
 - [x] Reject unusable input streams; preserve bounded-line recovery and deterministic snapshots.
 - [x] Share percentile calculation; verify CLI snapshots, errors, and metric bounds.
 - [x] Record fresh release/sanitizer checks, benchmark evidence, decisions, and interview guide.
-- [ ] Prepare two separate reproducible practice checkpoints; return to `shaoyu/rework`.
+- [x] Prepare two separate reproducible practice checkpoints; return to `shaoyu/rework`.
 
 Primary checks: `cmake --preset release`, `cmake --build --preset release --parallel 2`, `ctest --preset release`. ASan/UBSan and TSan use their respective presets. Benchmark only release builds. Instructions and evidence live in `docs/`.

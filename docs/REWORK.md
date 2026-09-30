@@ -43,3 +43,11 @@ Tests are local/synthetic, not production evidence. TSan needs a compatible host
 Preserved operations, parser rules, snapshot/JSON formats, threaded ownership, queue backpressure, benchmark tooling, and history. No new runtime dependency, checkpoint store, matching engine, live feed, lock-free queue, or speculative optimization. Documentation now distinguishes historical measurements from this rework, explains three decisions, and avoids fabricated authorship or learner stories.
 
 Unverified: TSan runtime validation, hosted CI, production performance, worker allocation-failure injection, stream-exception EOF normalization, and profiling. Orders can grow without bound; one dispatcher and skewed symbol loads limit scaling. Exercise fixes must be investigated by the learner; prepared regressions and solutions do not count as learner experience.
+
+## Learning branch and completion
+
+`shaoyu/learning` was created from the verified `8d878b5` baseline. Fixture/hint/regression preparation: `b2a7a80`. Independent faulty checkpoints: `shaoyu/practice-1` → `37cda3c`, `shaoyu/practice-2` → `800a83d` (learning tip). Both build and reproduce their stated symptoms; focused regressions fail there and pass with reference behavior. Exercise 2 removes the first defect before introducing its own. Learner instructions: DEBUGGING.md. Solutions and detailed observations exist only in the learning branch's `practice/mentor/`, not in this working checkout.
+
+Prepared reference behavior passed both focused regressions and release CTest 3/3 (5.89 s). This is agent preparation, not learner investigation. Returned to `shaoyu/rework`, rebuilt to replace branch-shared artifacts, and release CTest passed 3/3 (4.74 s). Final ASan/UBSan rebuild and CTest passed 3/3 (8.60 s). Aggregate diff against `527af9c` and final uncommitted diff were inspected; whitespace checks passed. Ancestry checks confirmed both branches retain their respective baselines. Existing `main` and all original commits remain unchanged; nothing was pushed or history-rewritten.
+
+Next learning step: choose a practice tag, branch from it, reproduce symptoms, and save your own hypotheses/evidence before requesting hints. Eventual learner fixes and interview stories remain intentionally pending your investigation.
