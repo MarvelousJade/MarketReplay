@@ -1,6 +1,6 @@
 # Debugging practice (learner instructions)
 
-Two **invented practice scenarios**, not production incidents. Both were subsequently investigated and fixed autonomously by the coding agent at the user's request. Local `main` contains the rework and both focused fixes; `shaoyu/learning` is also corrected. The original faulty tags remain preserved for independent practice. No personal user investigation is claimed.
+Two **invented practice scenarios**, not production incidents. Both were subsequently investigated and fixed autonomously by the coding agent at the user's request. Local `main` contains the rework and both focused fixes. The fully merged rework, learning, and solution branches were subsequently deleted at the user's request, leaving only local `main`. The original faulty tags remain preserved for independent practice. No personal user investigation is claimed.
 
 Completed investigations (spoilers): [exercise 1](EXERCISE-1.md), [exercise 2](EXERCISE-2.md). Integration and final checks: [INTEGRATION.md](INTEGRATION.md). Neither exercise depends on fixing the other.
 

@@ -60,7 +60,7 @@ Ancestry verification (all must exit zero):
 git merge-base --is-ancestor 6f3dea4 main
 git merge-base --is-ancestor 2d0b12d main
 git merge-base --is-ancestor 732e945 main
-git diff --exit-code shaoyu/rework -- src include python
+git diff --exit-code 6f3dea4 -- src include python
 git diff 527af9c --check
 ```
 
@@ -71,3 +71,7 @@ Final audit: the ancestry commands above all passed, both fixes also remain ance
 State remains in memory and can grow beyond queue bounds; no durable checkpoint, live feed, matching engine, production performance evidence, or allocation-failure injection. Stream-exception EOF normalization is not implemented. TSan needs a compatible host; race freedom is unverified. No new benchmark was needed for these correctness fixes.
 
 [INTERVIEW.md](INTERVIEW.md) now provides concise agent-investigation explanations and follow-up questions. Personal interview stories require the user's own independent investigation notes; these prepared examples are not substitutes for experience.
+
+## Subsequent branch cleanup
+
+At the user's request, kept only local `main`. Before deletion, verified that `shaoyu/rework`, `shaoyu/learning`, and `shaoyu/solution-1` were fully merged into `main`, then deleted them with `git branch -d`. No commits or practice tags were removed, and no remote changes were made. Branch names above describe the historical integration process; use commit IDs and practice tags for future reproduction.

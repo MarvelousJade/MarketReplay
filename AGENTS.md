@@ -26,6 +26,6 @@ Interview material must describe the actual implementation, not invent authorshi
 - [x] Merge verified rework and corrected learning into local `main` without squashing.
 - [x] Run final Release/ASan checks; attempt TSan and report startup failures.
 
-Completion evidence is in `docs/INTEGRATION.md`. The original faulty tags stay available, but `main` and the learning tip contain corrected code. Do not present agent investigations as personal user experience.
+Completion evidence is in `docs/INTEGRATION.md`. The original faulty tags stay available; local `main` contains corrected code. Fully merged working/learning branches were deleted at the user's request. Do not present agent investigations as personal user experience.
 
 Primary checks: `cmake --preset release`, `cmake --build --preset release --parallel 2`, `ctest --preset release`. ASan/UBSan and TSan use their respective presets. Benchmark only release builds. Instructions and evidence live in `docs/`.
