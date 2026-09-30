@@ -17,6 +17,13 @@ with tempfile.TemporaryDirectory() as directory:
     cases = [b"", b"\n", b"1,A,R,0,-,0,0", b"x" * 4097, b"x" * 4098 + b"\n1,A,R,0,-,0,0\n",
              b"1,A,R,0,-,0,0\r\n2,A,A,1,B,1,2\r\n3,A,E,1,-,0,3\n5,A,X,1,-,0,0\n6,A,R,0,-,0,0\n",
              b"1,A,R,0,-,0,0\x00\n1,B,R,0,-,0,0\n"]
+    # Leading zeros make valid records exactly at the reader's byte limit.
+    record = b"1,A,R,0,-,0,0"
+    for length in (4095, 4096, 4097, 4098):
+        padded = b"0" * (length - len(record)) + record
+        for ending in (b"", b"\n", b"\r\n"):
+            cases.append(padded + ending)
+        cases.append(padded + b"\n2,A,R,0,-,0,0\n3,A,A,1,B,10,4\n")
     example = (Path(__file__).resolve().parents[1] / "data/example.csv").read_bytes().splitlines(keepends=True)
     cases.extend(b"".join(example[:end]) for end in range(1, len(example) + 1))
     for seed in range(10):

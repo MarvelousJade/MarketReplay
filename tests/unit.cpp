@@ -97,6 +97,12 @@ void replay_tests() {
     bool threw = false;
     try { (void)replay(broken, {4, 1}); } catch (const std::runtime_error&) { threw = true; }
     CHECK(threw);
+    // An already-failed stream is an I/O error, not a malformed record.
+    std::istringstream failed("1,A,R,0,-,0,0\n2,A,A,1,B,10,4\n");
+    failed.setstate(std::ios::failbit);
+    threw = false;
+    try { (void)replay(failed, {2, 1}); } catch (const std::runtime_error&) { threw = true; }
+    CHECK(threw);
     Histogram h;
     h.record(0); h.record(1); h.record(8);
     CHECK(h.percentile(50) == 1 && h.percentile(99) == 15);

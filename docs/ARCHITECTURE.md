@@ -57,3 +57,5 @@ Exit 0 means replay completed, **not** that the input was clean. Exit 1 means fa
 - Semantic errors leave orders unchanged. Allocation errors abort the entire run.
 - Closing a queue wakes readers/writers and drains pending work; threads join before their state is destroyed.
 - A worker failure closes all queues and is rethrown after joining. No partial result is returned.
+- An input stream already carrying failbit or badbit is rejected before starting workers. Previously, clearing failbit as though it meant an oversized record could silently discard the first valid record. Oversized records remain recoverable; I/O failures are fatal.
+- The stream API expects ordinary non-throwing iostream state handling (the CLI uses this default). A caller enabling stream exceptions may receive an exception even on normal EOF.

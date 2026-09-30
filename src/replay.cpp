@@ -48,6 +48,8 @@ std::size_t shard(std::string_view symbol, std::size_t workers) {
 Result replay(std::istream& input, Config config) {
     if (!config.workers || config.workers > 256 || !config.capacity)
         throw std::invalid_argument("workers must be 1..256; capacity must be positive");
+    // Reject prior I/O failures before getline recovery can clear their evidence.
+    if (input.fail()) throw std::runtime_error("input stream is not readable");
     Result result;
     std::vector<std::unique_ptr<Worker>> workers;
     for (std::size_t i = 0; i < config.workers; ++i)
