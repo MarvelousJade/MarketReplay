@@ -12,6 +12,10 @@ After the baseline passes, prepare two or three plausible defects on a separate 
 
 Interview material must describe the actual implementation, not invent authorship or investigation experience. Prepare a 60-second introduction and three-minute walkthrough. After the learner investigates, derive stories from their notes: problem → hypothesis → evidence → decision → fix → verification.
 
+## Commit identity
+
+At the owner's request, use the repository's configured Git identity for all future commits: `Shaoyu <fanshaoyu9@outlook.com>`. Do not override it with `Coding Agent` or rewrite existing authorship. Commit metadata does not imply personal investigation: continue distinguishing agent work from the user's actual experience in documentation.
+
 ## Current rework checklist
 
 - [x] Reject unusable input streams; preserve bounded-line recovery and deterministic snapshots.
