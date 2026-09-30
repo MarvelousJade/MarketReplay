@@ -1,51 +1,49 @@
-# Interview cheat sheet
+# Interview preparation
 
-## 30-second explanation
+These are implementation explanations, not claims that you originally built the project. Rework started from an existing engine. Adapt the wording only after you can trace the code and explain the evidence.
 
-> “I built a C++20 market-data replay engine. One reader parses events and routes each symbol to a worker through a bounded queue. Each worker owns its order books, so book updates need no locks. Sequence gaps make a book untrusted until a reset arrives. I check results against a separate Python implementation and benchmark throughput and latency.”
+## 60-second introduction
 
-Use this as a learning summary—not a claim of experience you cannot explain.
+> MarketReplay reconstructs an order book from a CSV feed in C++20; it does not match trades. One reader validates events and routes each symbol to a worker through a bounded queue. Workers own their books, avoiding shared book writes. Per-symbol sequences detect missing data, and a reset restores trust. Output is sorted, so timing can change without changing the final snapshot. The rework preserved this architecture, hardened input failure handling, consolidated histogram calculations, and added explicit CLI acceptance coverage. Verification combines focused C++ tests, an independent Python oracle, and sanitizer runs. Local synthetic benchmarks showed that more workers were slower, so concurrency is not sold as a performance guarantee. The main limits are in-memory order storage, a single dispatcher, and no durable recovery checkpoint.
 
-## Read the code in this order (~20 minutes)
+## Three-minute technical walkthrough
 
-| File | What to understand |
-|---|---|
-| `include/market/book.hpp` | Event, Order, Book: the data model |
-| `src/book.cpp` | Add, execute, cancel, reset |
-| `include/market/queue.hpp` | Mutex, condition variables, full/empty waits |
-| `src/replay.cpp` | Route → process → close → join → combine |
-| `tests/unit.cpp` | Concrete examples of correctness |
+**0:00–0:45 — contract.** Open `data/example.csv` and `src/parser.cpp`. Trace reset → add → execute → cancel. Explain integer ticks and exact seven-field validation. Malformed rows do not advance sequences; missing sequence numbers can therefore invalidate a symbol.
 
-`parser.cpp` validates input; `main.cpp` only handles CLI and I/O. Python is a correctness oracle, not part of the fast path.
+**0:45–1:30 — state.** Open `src/book.cpp`. Orders are keyed by ID; bids/asks aggregate remaining quantities by price. Semantic rejection consumes sequence but must not mutate orders. A gap makes retained data diagnostic-only until an authoritative reset. Show the trust flag in the snapshot.
 
-## Questions you should answer
+**1:30–2:15 — ownership and lifetime.** Open `src/replay.cpp` and `include/market/queue.hpp`. Symbol hashing preserves per-symbol FIFO order. A full queue blocks the reader. Close wakes waiters, prevents new pushes, and drains pending work. Join before combining state or destroying dependencies. Worker failure closes all queues and prevents returning a partial result.
 
-**Why threads?** Different symbols can be processed independently. A symbol stays on one worker to preserve order.
+**2:15–3:00 — evidence and tradeoffs.** Show `tests/cli.py`, `tests/differential.py`, and `docs/REWORK.md`. Explain the preexisting-failbit regression and nearest-rank histogram bounds. Release and ASan/UBSan passed locally; TSan startup failed, so race validation is incomplete. Compare local benchmark medians without claiming a measured bottleneck. Explain why maps/blocking queues were retained rather than speculatively optimized.
 
-**Why not lock every book?** Worker ownership avoids shared writes. Locks are only needed where events cross threads: the queues.
+## Read in order
 
-**What is backpressure?** A full queue blocks the producer instead of growing memory or dropping events. A slow worker can therefore slow the reader.
+`include/market/book.hpp` → `src/parser.cpp` → `src/book.cpp` → `include/market/queue.hpp` → `src/replay.cpp` → `tests/unit.cpp` → `tests/cli.py`. The CLI handles files and presentation; Python is an oracle, not a runtime dependency for replay.
 
-**Why a condition variable?** Threads sleep while waiting. The wait predicate handles spurious wakeups. Close wakes blocked threads so shutdown cannot leave them waiting forever.
+## Follow-up questions
 
-**What is RAII here?** Objects own resources: `unique_ptr` owns worker state and `jthread` owns thread lifetime. Queues close and threads join before dependent state is destroyed.
+- Why must one symbol stay on one worker? What changes if symbols interact?
+- Why does a rejected operation consume sequence, while malformed input does not?
+- How do you prove order quantities and level totals stay consistent?
+- What distinguishes queue closure from immediate cancellation? Which threads can wait?
+- Why are condition-variable predicates needed? What happens if notifications occur first?
+- What does `jthread` provide, and why is explicit queue closure still necessary?
+- What does the latency timer include/exclude? Can lower p99 coexist with lower throughput?
+- Why merge histograms instead of averaging worker p99s? What precision is lost?
+- Would a hash map improve this workload? What experiment would justify the change?
+- What would a durable checkpoint need to record to avoid sequence/state inconsistency?
 
-**Why deterministic?** Per-symbol FIFO order is preserved; symbols do not interact; final output is sorted. Thread scheduling changes timing, not book contents.
+## Investigation notes and eventual stories
 
-**Why maps?** Simple ordered storage and O(log n) updates. They allocate nodes and have pointer-chasing costs. A hash table plus ordered price levels could be a later measured optimization.
+Use `docs/DEBUGGING.md` to start exercises. Do not read solution material first. Record commands, actual outputs, hypotheses rejected, the smallest fix, and regression results. No learner investigation has occurred yet, so there are no experience-based debugging stories to publish.
 
-**How do you know it works?** Hand-written book/queue tests plus byte-for-byte Python comparisons, including malformed records, sequence gaps, resets, and different worker counts. Sanitizers check additional memory/UB/race problems.
+After each exercise, fill this from your own notes:
 
-**Why not lock-free?** A mutex queue is easier to verify. Only replace it after profiling shows it matters; lock-free does not automatically mean faster.
+- **Problem:** what you observed (separate simulated report from your reproduction).
+- **Hypothesis:** what you predicted and how you tried to disprove it.
+- **Evidence:** commands/tests and their actual output.
+- **Decision:** alternatives and why you chose one.
+- **Fix:** what you changed and the invariant restored.
+- **Verification:** failing-before/passing-after regression and full affected checks.
 
-**What did benchmarking teach you?** More workers were slower in the local smoke run. Cheap updates can cost less than thread handoff. Profiling is needed to identify the cause—not guess it.
-
-**Biggest limits?** One dispatcher, hot-symbol imbalance, unbounded book storage, no durable checkpoint. It reconstructs orders; it does not perform matching or live trading.
-
-## Five-minute practice
-
-1. Trace add 50 → execute 10 → cancel: remaining quantities are 50 → 40 → 0.
-2. Explain what happens when sequence 4 follows 2: untrusted until reset.
-3. Explain how closing a full queue releases a blocked producer.
-4. Run the example with 1 and 4 workers and compare snapshots.
-5. Change an expected quantity in a test and confirm the test fails; restore it afterward.
+Bring these notes back for progressive hints or a concise interview story. Explain reasoning rather than memorize this guide.

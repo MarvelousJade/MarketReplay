@@ -1,5 +1,18 @@
 # Input, output, and recovery
 
+## Architecture and end-to-end workflow
+
+`main.cpp` opens input and writes output. `parser.cpp` validates one CSV record. `book.cpp` owns order/level/sequence invariants. `queue.hpp` handles thread handoff; `replay.cpp` routes, drains, joins, and merges results. No service layer or external runtime dependency.
+
+```text
+file → bounded record reader → validated Event → symbol hash → FIFO queue
+     → worker-owned Book → close/drain/join → sorted snapshot + timing JSON
+```
+
+Example: reset A, add five, execute two, encounter a sequence gap, reset, add four. The final trusted book contains only the last four; prior quantities are not carried across reset. `tests/cli.py` checks this complete workflow, including counters and metrics. Different symbols are independent; the reader preserves order within each symbol. Books need no locks because only their worker mutates them. Result aggregation happens after all joins.
+
+See [DECISIONS.md](DECISIONS.md) for alternatives and evidence; [REWORK.md](REWORK.md) records actual checks.
+
 ## Input: seven CSV fields
 
 ```text

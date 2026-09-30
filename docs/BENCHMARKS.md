@@ -34,7 +34,7 @@ Fixed seed, 32 symbols, mixed adds/cancels/executions, at most 128 live orders p
 
 Every event is timed. This is an unpaced replay benchmark, not a realistic external-arrival latency test. Do not benchmark sanitizer builds.
 
-## Local smoke result (not a performance guarantee)
+## Original local smoke result (historical, not a performance guarantee)
 
 100,000 events, seed 42, capacity 1024, three measured runs; GCC 14.2.1 Release, shared WSL2 host, no explicit CPU pinning:
 
@@ -45,6 +45,26 @@ Every event is timed. This is an unpaced replay benchmark, not a realistic exter
 | 4 | 72,971 | 66 µs |
 
 **Takeaway:** more threads were slower here. Lock handoff, scheduling, and a single dispatcher are hypotheses—not measured causes. The lower queue latency does not imply higher throughput. Full local metadata remains in the ignored benchmark report.
+
+## Rework local smoke result
+
+Fresh Release run at `a944c2e`: GCC 14.2.1, Python 3.14.7, WSL2 Linux 6.18.40.1, Ryzen 5 3600, 12 visible logical CPUs (affinity 0–11, no explicit pinning). Same 100,000-event, seed-42, 32-symbol, capacity-1024 workload; one warmup and three measurements per configuration.
+
+```sh
+python3 python/benchmark.py build/release/replay --events 100000 --repeats 3 --output bench-results/rework
+```
+
+| Workers | Warmup events/s | Three measured events/s | Median events/s | Median run p99 upper ns |
+|---|---:|---|---:|---:|
+| 1 | 690,194 | 694,923 / 726,876 / 695,308 | 695,308 | 262,143 |
+| 2 | 434,197 | 447,608 / 447,977 / 416,889 | 447,608 | 131,071 |
+| 4 | 76,153 | 72,720.8 / 66,092 / 68,526.6 | 68,526.6 | 131,071 |
+
+All 12 snapshots matched SHA-256 `7afa85002082e9e7f80d6506179981b5ffd778bc3fb524f06853c29aec4e2112`.
+Input SHA-256: `9ee4339a90d738b57f0ecb777e4b1c42b6cdfb60a77cb4ad8f8399a269b0118e`.
+Binary SHA-256: `c10c6a4a3d3ec2dba448a5c06fe33ed508bb2815f8bd2d10ce8e0362f114824a` (compiler/build dependent).
+
+Raw local runs and detailed host/build metadata are retained in ignored `bench-results/rework/report.json`; the measured samples above are committed so the evidence does not depend on that local artifact. This short synthetic workload supports retaining a simple architecture, not claiming a speed improvement. The TSan build/check also ran concurrently during this smoke collection, adding uncontrolled load; these are not clean comparative performance measurements. No profiling, production load, or synchronous-path comparison was performed. Fresh release/ASan/TSan check outcomes are in [REWORK.md](REWORK.md).
 
 ## Profile before optimizing
 
