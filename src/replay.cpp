@@ -16,9 +16,13 @@ void Histogram::record(Number ns) {
     const auto bucket = std::min<unsigned>(63, static_cast<unsigned>(std::bit_width(ns)));
     ++buckets[bucket]; ++count;
 }
-Number Histogram::percentile(unsigned percent) const {
+Number Histogram::percentile(unsigned numerator, unsigned denominator) const {
+    if (!numerator || !denominator || numerator > denominator)
+        throw std::invalid_argument("percentile must be in (0, 1]");
     if (!count) return 0;
-    const auto rank = (count / 100) * percent + ((count % 100) * percent + 99) / 100;
+    // Split before multiplication to avoid overflowing large sample counts.
+    const auto rank = (count / denominator) * numerator
+        + ((count % denominator) * numerator + denominator - 1) / denominator;
     Number sum = 0;
     for (unsigned i = 0; i < 64; ++i) {
         sum += buckets[i];
@@ -133,15 +137,8 @@ void Result::metrics(std::ostream& out, Config config) const {
         << ",\"latency_samples\":" << latency.count
         << ",\"latency_p50_upper_ns\":" << latency.percentile(50)
         << ",\"latency_p99_upper_ns\":" << latency.percentile(99)
-        << ",\"latency_p999_upper_ns\":";
-    // 99.9% nearest rank without floating-point rank rounding.
-    const auto rank = latency.count - latency.count / 1000;
-    Number cumulative = 0, upper = 0;
-    for (unsigned i = 0; latency.count && i < 64; ++i) {
-        cumulative += latency.buckets[i];
-        if (cumulative >= rank) { upper = i == 63 ? std::numeric_limits<Number>::max() : (Number{1} << i) - 1; break; }
-    }
-    out << upper << ",\"queue_high_water\":" << high_water
+        << ",\"latency_p999_upper_ns\":" << latency.percentile(999, 1000)
+        << ",\"queue_high_water\":" << high_water
         << ",\"blocked_pushes\":" << blocked_pushes << "}\n";
 }
 }

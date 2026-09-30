@@ -15,3 +15,11 @@ Acceptance: an already-failed stream throws instead of discarding data; 4095–4
 Regression: set failbit on a stream containing valid records. The new unit assertion failed (`check failed: threw`) before the fix. Root cause: oversized-line recovery cleared a preexisting failbit and discarded the first record. Reject failed streams before starting workers. This does not alter healthy CLI input or malformed-line recovery.
 
 Verification: release build and CTest passed 2/2 (4.53 seconds); example CLI snapshot matched Python via `diff -u`; `git diff --check` passed. Linker printed a host `.sframe` warning while returning success; no build failure was observed.
+
+## Increment 2: observable CLI contract
+
+Acceptance: one add/partial-execute/gap/reset workflow has an explicit expected snapshot; defaults and multiple worker counts agree; metrics count every processed event, stay within queue bounds, and have ordered percentile bounds. Empty input, argument errors, missing input, and Linux `/dev/full` output failure are checked.
+
+Replaced the second p99.9 bucket scan with the same integer nearest-rank calculation as p50/p99. Retained existing one-argument calls and JSON keys. Added empty, 1000-sample tail, merged, maximum-count, and invalid-fraction tests. No new dependency or metric storage.
+
+Verification: release configure/build and CTest passed 3/3 (4.92 seconds); `git diff --check` passed. CLI fixture is hand-written rather than derived from the same oracle, giving another independent contract check.

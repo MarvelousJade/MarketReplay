@@ -5,6 +5,7 @@
 #include <chrono>
 #include <future>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <thread>
@@ -103,11 +104,32 @@ void replay_tests() {
     threw = false;
     try { (void)replay(failed, {2, 1}); } catch (const std::runtime_error&) { threw = true; }
     CHECK(threw);
+}
+void histogram_tests() {
     Histogram h;
+    CHECK(h.percentile(999, 1000) == 0);
     h.record(0); h.record(1); h.record(8);
     CHECK(h.percentile(50) == 1 && h.percentile(99) == 15);
+    CHECK(h.percentile(999, 1000) == 15);
+    Histogram tail;
+    for (int i = 0; i < 999; ++i) tail.record(1);
+    tail.record(8);
+    CHECK(tail.percentile(999, 1000) == 1);
+    CHECK(tail.percentile(100) == 15);
+    h += tail;
+    CHECK(h.count == 1003 && h.percentile(999, 1000) == 15);
+    Histogram large;
+    large.count = std::numeric_limits<Number>::max();
+    large.buckets[63] = large.count;
+    CHECK(large.percentile(999, 1000) == large.count);
+    for (auto fraction : {std::pair{0U, 100U}, std::pair{1U, 0U}, std::pair{101U, 100U}}) {
+        bool threw = false;
+        try { (void)h.percentile(fraction.first, fraction.second); }
+        catch (const std::invalid_argument&) { threw = true; }
+        CHECK(threw);
+    }
 }
 int main() {
-    try { parser_tests(); book_tests(); queue_tests(); replay_tests(); std::cout << "all unit tests passed\n"; }
+    try { parser_tests(); book_tests(); queue_tests(); replay_tests(); histogram_tests(); std::cout << "all unit tests passed\n"; }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

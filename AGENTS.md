@@ -15,7 +15,7 @@ Interview material must describe the actual implementation, not invent authorshi
 ## Current rework checklist
 
 - [x] Reject unusable input streams; preserve bounded-line recovery and deterministic snapshots.
-- [ ] Share percentile calculation; verify CLI snapshots, errors, and metric bounds.
+- [x] Share percentile calculation; verify CLI snapshots, errors, and metric bounds.
 - [ ] Record fresh release/sanitizer checks, benchmark evidence, decisions, and interview guide.
 - [ ] Prepare two separate reproducible practice checkpoints; return to `shaoyu/rework`.
 
